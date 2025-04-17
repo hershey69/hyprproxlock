@@ -31,7 +31,7 @@ This will automatically install hyprlock and bluez-deprecated-tools as a depende
 
 Create a configuration file at `~/.config/hypr/hyprproxlock.conf`:
 
-```toml
+```conf
 # Device Configuration
 device {
     mac_address = "XX:XX:XX:XX:XX:XX"
