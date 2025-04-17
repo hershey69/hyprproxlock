@@ -1,0 +1,4 @@
+/target
+
+PKGBUILD-git
+.github/workflows/git-release.yml

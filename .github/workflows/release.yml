@@ -1,0 +1,46 @@
+name: Release and Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.0)'
+        required: false
+        type: string
+      rel:
+        description: 'Release number (default: 1)'
+        required: false
+        type: string
+        default: '1'
+  release:
+    types: [created]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and Prepare Release
+        id: release
+        uses: Da4ndo/rust-aur-release-deploy@v2
+        with:
+          pkg_name: hyprproxlock
+          version: ${{ github.event.inputs.version }}
+          rel: ${{ github.event.inputs.rel || '1' }}
+          build_linux: true
+          linux_files: '["LICENSE", "README.md"]'
+          pkgbuild: './PKGBUILD'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to AUR
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
+        with:
+          pkgname: hyprproxlock
+          pkgbuild: ${{ steps.release.outputs.pkgbuild_path }}
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "Update to version ${{ steps.release.outputs.version }}" 
