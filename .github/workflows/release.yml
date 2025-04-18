@@ -26,10 +26,10 @@ jobs:
         id: release
         uses: Da4ndo/rust-aur-release-deploy@v2
         with:
-          pkg_name: hyprproxlock
+          package_name: hyprproxlock
           version: ${{ github.event.inputs.version }}
           rel: ${{ github.event.inputs.rel || '1' }}
-          build_linux: true
+          platform: linux
           linux_files: '["LICENSE", "README.md"]'
           pkgbuild: './PKGBUILD'
         env:
