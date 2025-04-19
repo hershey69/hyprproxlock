@@ -10,13 +10,19 @@ url="https://github.com/Da4ndo/hyprproxlock"
 provides=('hyprproxlock')
 conflicts=('hyprproxlock')
 depends=('rust' 'cargo' 'bluez-deprecated-tools' 'hyprlock>=0')
-makedepends=('git')
+makedepends=('git' 'pkg-config' 'dbus')
 source=("git+https://github.com/Da4ndo/hyprproxlock.git")
 sha256sums=('SKIP')
 
 build() {
   cd "$srcdir/hyprproxlock"
   cargo build --release
+}
+
+pkgver() {
+  cd "$srcdir/hyprproxlock"
+  local ver=$(grep '^version = ' Cargo.toml | head -n1 | cut -d '"' -f2)
+  printf "%s.r%s.%s" "${ver}" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 package() {
