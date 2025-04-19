@@ -24,7 +24,7 @@ jobs:
 
       - name: Build and Prepare Release
         id: release
-        uses: Da4ndo/rust-aur-release-deploy@v2
+        uses: Da4ndo/rust-aur-release-deploy@master
         with:
           package_name: hyprproxlock
           version: ${{ github.event.inputs.version }}
