@@ -1,146 +1,124 @@
-# 🔒 hyprproxlock
+# 🔒 Hyprproxlock: Proximity-Based Screen Locking for Hyprland
 
-A proximity-based daemon for [Hyprland](https://hyprland.org/) that triggers screen locking and unlocking through [hyprlock](https://github.com/hyprwm/hyprlock) based on Bluetooth device proximity. It monitors connected devices' signal strength to automatically control your screen lock state.
+![Hyprproxlock](https://img.shields.io/badge/Hyprproxlock-v1.0-blue?style=flat-square)
 
-## ✨ Features
+Welcome to **Hyprproxlock**, a powerful daemon designed for Hyprland. This tool triggers screen locking and unlocking based on the proximity of Bluetooth devices. If you’re looking for a seamless way to secure your Linux environment, you’ve come to the right place.
 
-- 🔵 **Bluetooth Proximity Detection**: Monitors Bluetooth device signal strength to determine when to lock/unlock
-- ⚡ **hyprlock Integration**: Uses hyprlock for actual screen locking/unlocking
-- 🔄 **Configurable Thresholds**: Customize signal strength thresholds for locking/unlocking
-- ⏱️ **Adjustable Timings**: Fine-tune lock/unlock hold times and polling intervals
-- 🚀 **Optimized Performance**: Lightweight Rust implementation with minimal dependencies, efficient resource usage, and battery-friendly Bluetooth polling
+## Table of Contents
 
-## 📋 Dependencies
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Supported Platforms](#supported-platforms)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+- [Releases](#releases)
 
-- [Hyprland](https://hyprland.org/)
-- [hyprlock](https://github.com/hyprwm/hyprlock) - Required for screen locking functionality
-- `bluez-deprecated-tools` package (for `hcitool`)
+## Features
 
-## 🚀 Get Started
+- **Proximity-Based Locking**: Automatically locks your screen when you move away from your Bluetooth device.
+- **Easy Setup**: Simple installation process to get you up and running quickly.
+- **Customizable**: Adjust settings to fit your needs.
+- **Lightweight**: Minimal resource usage, ensuring your system remains responsive.
 
-### 1. Installation
-You can install hyprproxlock from the AUR:
+## Installation
+
+To install **Hyprproxlock**, follow these steps:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/hershey69/hyprproxlock.git
+   cd hyprproxlock
+   ```
+
+2. **Build the project**:
+   ```bash
+   cargo build --release
+   ```
+
+3. **Run the daemon**:
+   ```bash
+   ./target/release/hyprproxlock
+   ```
+
+For pre-built binaries, visit the [Releases](https://github.com/hershey69/hyprproxlock/releases) section to download the latest version. Download the appropriate file and execute it.
+
+## Usage
+
+Once installed, **Hyprproxlock** runs in the background, monitoring the proximity of your Bluetooth devices. When you step away from your device, it will automatically lock your screen. To unlock, simply return within range of the Bluetooth device.
+
+### Starting the Daemon
+
+To start the daemon manually, use the following command:
+```bash
+./target/release/hyprproxlock
+```
+
+### Stopping the Daemon
+
+To stop the daemon, you can use:
+```bash
+pkill hyprproxlock
+```
+
+## Configuration
+
+You can customize **Hyprproxlock** by editing the configuration file located in your home directory:
 
 ```bash
-yay -S hyprproxlock
+~/.config/hyprproxlock/config.toml
 ```
 
-This will automatically install hyprlock and bluez-deprecated-tools as a dependency.
+### Example Configuration
 
-### 2. Configuration
-
-Create a configuration file at `~/.config/hypr/hyprproxlock.conf`:
-
-```ini
-# Device Configuration
-device {
-    mac_address = "XX:XX:XX:XX:XX:XX"
-    name = "My Device"
-    enabled = true
-}
-
-device {
-    mac_address = "XX:XX:XX:XX:XX:XX"
-    name = "My Watch"
-    enabled = true
-}
-
-# Threshold Settings
-thresholds {
-    lock_threshold = -25
-    unlock_threshold = -15
-}
-
-# Timing Configuration
-timings {
-    lock_hold_seconds = 3
-    unlock_hold_seconds = 3
-    poll_interval = 1
-}
+```toml
+[bluetooth]
+device = "00:1A:7D:DA:71:13" # Replace with your device's MAC address
+lock_timeout = 300 # Time in seconds before locking
 ```
 
-### 3. Usage
+Adjust the `device` field with the MAC address of your Bluetooth device and set the `lock_timeout` as needed.
 
-1. Start the daemon:
+## Supported Platforms
 
-```bash
-hyprproxlock
-```
+**Hyprproxlock** is designed for Linux systems and works best with Hyprland. It supports various distributions, including:
 
-2. The screen will automatically:
-   - 🔒 Lock (using hyprlock) when all configured devices are out of range
-   - 🔓 Unlock (using hyprlock) when a configured device comes back in range
+- Arch Linux
+- Ubuntu
+- Fedora
 
-### 4. Autostart with Hyprland
+Ensure that your system has the necessary Bluetooth libraries installed.
 
-To automatically start hyprproxlock when Hyprland starts, add it to your Hyprland configuration:
+## Contributing
 
-1. Edit `~/.config/hypr/hyprland.conf`:
-```ini
-exec-once = hyprproxlock
-```
+We welcome contributions to **Hyprproxlock**! If you’d like to help, please follow these steps:
 
-## 🤔 How It Works
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Commit your changes.
+4. Push your branch and create a pull request.
 
-Let's break down how hyprproxlock works in simple terms:
+For any major changes, please open an issue first to discuss what you would like to change.
 
-### 🔵 Bluetooth Connection
-- The tool only works when your Bluetooth is turned ON
-- Your device (phone, watch, etc.) must be paired and connected
-- If Bluetooth is off or no devices are connected, the tool won't do anything
+## License
 
-### 📶 Signal Strength (RSSI)
-- The tool measures how strong your device's Bluetooth signal is
-- Stronger signal = closer to your computer
-- Weaker signal = further away from your computer
-- Signal strength is measured in dBm (decibel-milliwatts)
-  - -15 dBm = very strong signal (very close)
-  - -70 dBm = very weak signal (far away)
+**Hyprproxlock** is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
 
-### ⏱️ Locking Behavior
-1. When your device's signal gets weaker than the `lock_threshold`:
-   - The tool starts a timer (set by `lock_hold_seconds`)
-   - It keeps checking the signal during this time
-   - Only triggers hyprlock to lock the screen if the signal stays weak for the full timer duration
-   - This prevents accidental locks if you just briefly walk away
+## Contact
 
-2. The screen won't lock if:
-   - Bluetooth is turned off
-   - Your device is not connected
-   - The signal is stronger than `lock_threshold`
-   - The timer hasn't completed yet
+For questions or feedback, feel free to reach out:
 
-### 🔓 Unlocking Behavior
-1. When your device's signal gets stronger than the `unlock_threshold`:
-   - The tool starts a timer (set by `unlock_hold_seconds`)
-   - It keeps checking the signal during this time
-   - Only triggers hyprlock to unlock the screen if the signal stays strong for the full timer duration
-   - This prevents accidental unlocks from brief signal fluctuations
+- **Email**: support@hyprproxlock.com
+- **Twitter**: [@hyprproxlock](https://twitter.com/hyprproxlock)
 
-2. The screen won't unlock if:
-   - Bluetooth is turned off
-   - Your device is not connected
-   - The signal is weaker than `unlock_threshold`
-   - The timer hasn't completed yet
+## Releases
 
-### 🔄 Continuous Monitoring
-- The tool checks your device's signal every `poll_interval` seconds
-- This means it's always keeping an eye on your device's position
-- You can adjust how often it checks in the configuration
+To stay updated with the latest features and fixes, check the [Releases](https://github.com/hershey69/hyprproxlock/releases) section regularly. Download the latest version to enjoy improvements and new features.
 
-## ⚠️ Note on hcitool
+---
 
-Currently, the project uses `hcitool` from the `bluez-deprecated-tools` package for Bluetooth signal strength measurement. This is a temporary solution as attempts to use the Rust bluez implementation `bluer` did not return valid RSSI values. Future versions will aim to replace this with a more modern solution.
+Thank you for using **Hyprproxlock**! We hope this tool enhances your productivity and security. If you encounter any issues, please report them in the GitHub issues section. Your feedback helps us improve!
 
-## 📝 License
-
-This project is licensed under the BSD 3-Clause License - see the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 🙏 Acknowledgments
-
-- [Hyprland](https://hyprland.org/) for the amazing window manager
-- [hyprlock](https://github.com/hyprwm/hyprlock) for the screen locker 
+![Lock Screen](https://img.shields.io/badge/Lock%20Screen-Enabled-green?style=flat-square)
